@@ -1,6 +1,6 @@
 window.EASY_VISA_EN={
   purpose:['What is the main purpose of this trip?',{'tourism':'Tourism / vacation','visit':'Visit family or friends','business':'Short business meetings or negotiations','medical':'Medical treatment','studywork':'Work or degree study in the United States','other':'Other or not decided'}],
-  nationality:['What is your nationality?',{}],residence:['Which country/region and province/state/city do you usually live in?',{}],residenceCity:['Which province/state and city do you usually live in?',{}],
+  nationality:['What is your nationality?',{}],residence:['Which country or region do you usually live in?',{}],residenceProvince:['Which province or state do you usually live in?',{}],residenceCity:['Which city do you usually live in?',{}],
   visaState:['What is your current U.S. visa status?',{'first':'First application','renew':'Previously issued; applying again','refused':'Previously refused; applying again','valid':'I have a valid U.S. visa and want to check whether I need another','unsure':'Not sure'}],
   length:['How long do you plan to stay in the United States?',{'short':'1–14 days','medium':'15–30 days','long':'31–90 days','verylong':'More than 90 days','unsure':'Not decided'}],
   plan:['How complete is your travel plan?',{'clear':'Purpose, destinations and outline are clear','partial':'Purpose is clear; itinerary is pending','idea':'Only an initial idea','unsure':'Not decided'}],
