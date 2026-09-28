@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "easy-visa-redemption-api",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-28",
+  "workers_dev": true,
+  "vars": {
+    "ALLOWED_ORIGIN": "https://lanzier.github.io"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "easy-visa-redemption-codes",
+      "database_id": "6300a9fd-fe5e-4665-9adc-6ca2b173d60e"
+    }
+  ]
+}
