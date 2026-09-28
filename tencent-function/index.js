@@ -150,9 +150,10 @@ async function ensurePickupTable() {
 }
 
 async function isAdminCode(code) {
+  const normalizedCode = String(code || '').trim().toUpperCase();
   const rows = await cloudflareQuery(
     'SELECT id FROM redemption_codes WHERE code_hash = ? AND is_unlimited = 1 LIMIT 1',
-    [sha256(code)]
+    [sha256(normalizedCode)]
   );
   return Boolean(rows[0]);
 }
