@@ -1,0 +1,15 @@
+函数名称：easy-visa-redemption-proxy
+函数类型：事件函数
+运行环境：Node.js 16.13 或更高版本
+执行方法：index.main_handler
+内存：64 MB 或控制台允许的最低值
+超时时间：15 秒
+公网访问：创建函数 URL，鉴权类型选择“免鉴权”
+
+环境变量：
+CF_API_TOKEN：Cloudflare API 令牌，仅授予目标账户的 D1 Write 权限
+SESSION_SECRET：随机会话签名密钥，建议至少 32 字节
+
+本函数通过 Cloudflare 官方 API 直接读写现有 D1 数据库。
+兑换码、次数、到期时间和管理员密码哈希仍保存在 Cloudflare D1。
+代码包不包含兑换码、管理员密码或 Cloudflare API 令牌。
