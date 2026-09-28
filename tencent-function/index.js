@@ -184,6 +184,55 @@ async function importPickupOrders(secret, orders) {
   return { imported, skipped };
 }
 
+function generateRedemptionCode() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const bytes = crypto.randomBytes(12);
+  let value = '';
+  for (let i = 0; i < bytes.length; i += 1) value += alphabet[bytes[i] % alphabet.length];
+  return `EV-${value.slice(0, 4)}-${value.slice(4, 8)}-${value.slice(8, 12)}`;
+}
+
+async function autoAssignPickupOrders(secret, orders) {
+  await ensurePickupTable();
+  const now = new Date().toISOString();
+  let imported = 0;
+  let skipped = 0;
+  const assigned = [];
+  for (const item of orders) {
+    const orderNumber = normalizeOrderNumber(item?.orderNumber);
+    if (!/^[A-Z0-9-]{10,40}$/.test(orderNumber)) { skipped += 1; continue; }
+    const orderHash = sha256(orderNumber);
+    const existing = await cloudflareQuery('SELECT code_cipher FROM pickup_orders WHERE order_hash = ? LIMIT 1', [orderHash]);
+    if (existing[0]) {
+      assigned.push({ orderNumber, code: decryptCode(secret, existing[0].code_cipher), created: false });
+      continue;
+    }
+    let code = '';
+    let codeHash = '';
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      code = generateRedemptionCode();
+      codeHash = sha256(code);
+      const duplicate = await cloudflareQuery('SELECT id FROM redemption_codes WHERE code_hash = ? LIMIT 1', [codeHash]);
+      if (!duplicate[0]) break;
+      code = '';
+    }
+    if (!code) { skipped += 1; continue; }
+    const codeId = `EV-AUTO-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+    await cloudflareQuery(`
+      INSERT INTO redemption_codes
+        (id, code_hash, code_hint, max_uses, used_count, is_unlimited, created_at, first_used_at, expires_at, last_used_at)
+      VALUES (?, ?, ?, 5, 0, 0, ?, NULL, '9999-12-31T23:59:59.999Z', NULL)
+    `, [codeId, codeHash, code.slice(-4), now]);
+    await cloudflareQuery(`
+      INSERT INTO pickup_orders (order_hash, code_hash, code_cipher, created_at, claimed_at)
+      VALUES (?, ?, ?, ?, NULL)
+    `, [orderHash, codeHash, encryptCode(secret, code), now]);
+    imported += 1;
+    assigned.push({ orderNumber, code, created: true });
+  }
+  return { imported, skipped, assigned };
+}
+
 async function pickupOrder(secret, orderNumber) {
   await ensurePickupTable();
   const orderHash = sha256(orderNumber);
@@ -231,7 +280,10 @@ exports.main_handler = async (event) => {
       const adminCode = String(body?.adminCode || '').trim();
       if (!await isAdminCode(adminCode)) return response(403, { ok: false, error: 'forbidden' });
       const orders = Array.isArray(body?.orders) ? body.orders.slice(0, 100) : [];
-      const result = await importPickupOrders(process.env.SESSION_SECRET, orders);
+      const automatic = orders.every(item => !String(item?.code || '').trim());
+      const result = automatic
+        ? await autoAssignPickupOrders(process.env.SESSION_SECRET, orders)
+        : await importPickupOrders(process.env.SESSION_SECRET, orders);
       return response(200, { ok: true, ...result });
     }
 
