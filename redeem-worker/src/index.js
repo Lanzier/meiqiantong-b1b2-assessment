@@ -79,7 +79,9 @@ export default {
     if (url.pathname === '/verify') {
       const auth = request.headers.get('Authorization') || '';
       const session = await verifyToken(env.SESSION_SECRET, auth.startsWith('Bearer ') ? auth.slice(7) : '');
-      return session ? json({ ok: true }, 200, origin, env) : json({ ok: false, error: 'invalid_session' }, 401, origin, env);
+      if (!session) return json({ ok: false, error: 'invalid_session' }, 401, origin, env);
+      const sessionCode = await env.DB.prepare('SELECT is_unlimited FROM redemption_codes WHERE id = ?').bind(session.sub).first();
+      return sessionCode ? json({ ok: true, unlimited: sessionCode.is_unlimited === 1 }, 200, origin, env) : json({ ok: false, error: 'invalid_session' }, 401, origin, env);
     }
 
     if (url.pathname !== '/redeem') return json({ ok: false, error: 'not_found' }, 404, origin, env);
