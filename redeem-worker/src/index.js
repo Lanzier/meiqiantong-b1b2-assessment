@@ -86,17 +86,17 @@ export default {
     let body;
     try { body = await request.json(); } catch { return json({ ok: false, error: 'invalid_request' }, 400, origin, env); }
     const code = String(body?.code || '').trim().toUpperCase();
-    if (!/^EV-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code)) return json({ ok: false, error: 'invalid_code' }, 400, origin, env);
+    if (!/^[A-Z0-9.-]{6,24}$/.test(code)) return json({ ok: false, error: 'invalid_code' }, 400, origin, env);
     const now = new Date().toISOString();
     const codeHash = await sha256(code);
     const row = await env.DB.prepare(`
       UPDATE redemption_codes
-      SET used_count = used_count + 1, last_used_at = ?
-      WHERE code_hash = ? AND used_count < max_uses AND expires_at > ?
-      RETURNING id, max_uses, used_count, expires_at
+      SET used_count = CASE WHEN is_unlimited = 1 THEN used_count ELSE used_count + 1 END, last_used_at = ?
+      WHERE code_hash = ? AND (is_unlimited = 1 OR used_count < max_uses) AND (is_unlimited = 1 OR expires_at > ?)
+      RETURNING id, max_uses, used_count, expires_at, is_unlimited
     `).bind(now, codeHash, now).first();
     if (!row) return json({ ok: false, error: 'invalid_or_unavailable' }, 401, origin, env);
     const token = await issueToken(env.SESSION_SECRET, row.id);
-    return json({ ok: true, token, remaining: row.max_uses - row.used_count, expiresAt: row.expires_at }, 200, origin, env);
+    return json({ ok: true, token, unlimited: row.is_unlimited === 1, remaining: row.is_unlimited === 1 ? null : row.max_uses - row.used_count, expiresAt: row.is_unlimited === 1 ? null : row.expires_at }, 200, origin, env);
   }
 };

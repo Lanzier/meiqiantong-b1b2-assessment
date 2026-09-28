@@ -19,3 +19,6 @@ INSERT OR IGNORE INTO redemption_codes (id, code_hash, code_hint, max_uses, used
 ('EV-018','3445c959fac0fba1ce75b67c1f4d27c82b93e7445a3cc6d22e926bba930e63da','BRRS',5,0,'2026-09-28T08:42:24.056Z','2026-10-28T08:42:24.056Z'),
 ('EV-019','d665ead61ebdd4326917d164a39d31195462e109cf97bd7e4a2063654c7e60ef','NK32',5,0,'2026-09-28T08:42:24.056Z','2026-10-28T08:42:24.056Z'),
 ('EV-020','489af350e8e2c734eddef24456854ab640f98a82693c0e5cdf048db99772ed39','SWXH',5,0,'2026-09-28T08:42:24.056Z','2026-10-28T08:42:24.056Z');
+
+INSERT OR IGNORE INTO redemption_codes (id, code_hash, code_hint, max_uses, used_count, is_unlimited, created_at, expires_at) VALUES
+('ADMIN-001','4489eb849bff380a2e32818ada17790b392e7b2c2e2cebdb9329a5db30964fb5','3456',1,0,1,'2026-09-28T00:00:00.000Z','9999-12-31T23:59:59.999Z');
