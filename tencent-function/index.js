@@ -58,6 +58,30 @@ function verifyToken(secret, token) {
   }
 }
 
+function normalizeOrderNumber(value) {
+  return String(value || '').trim().toUpperCase().replace(/\s+/g, '');
+}
+
+function sha256(value) {
+  return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function encryptCode(secret, code) {
+  const key = crypto.createHash('sha256').update(secret).digest();
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const encrypted = Buffer.concat([cipher.update(code, 'utf8'), cipher.final()]);
+  return Buffer.concat([iv, cipher.getAuthTag(), encrypted]).toString('base64');
+}
+
+function decryptCode(secret, value) {
+  const data = Buffer.from(value, 'base64');
+  const key = crypto.createHash('sha256').update(secret).digest();
+  const decipher = crypto.createDecipheriv('aes-256-gcm', key, data.subarray(0, 12));
+  decipher.setAuthTag(data.subarray(12, 28));
+  return Buffer.concat([decipher.update(data.subarray(28)), decipher.final()]).toString('utf8');
+}
+
 function cloudflareQuery(sql, params = []) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({ sql, params });
@@ -112,12 +136,69 @@ async function redeem(code) {
   return rows[0] || null;
 }
 
+async function ensurePickupTable() {
+  await cloudflareQuery(`
+    CREATE TABLE IF NOT EXISTS pickup_orders (
+      order_hash TEXT PRIMARY KEY,
+      code_hash TEXT NOT NULL,
+      code_cipher TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      claimed_at TEXT
+    )
+  `);
+  await cloudflareQuery('CREATE UNIQUE INDEX IF NOT EXISTS pickup_orders_code_hash_unique ON pickup_orders(code_hash)');
+}
+
+async function isAdminCode(code) {
+  const rows = await cloudflareQuery(
+    'SELECT id FROM redemption_codes WHERE code_hash = ? AND is_unlimited = 1 LIMIT 1',
+    [sha256(code)]
+  );
+  return Boolean(rows[0]);
+}
+
+async function importPickupOrders(secret, orders) {
+  await ensurePickupTable();
+  const now = new Date().toISOString();
+  let imported = 0;
+  let skipped = 0;
+  for (const item of orders) {
+    const orderNumber = normalizeOrderNumber(item?.orderNumber);
+    const code = String(item?.code || '').trim().toUpperCase();
+    if (!/^[A-Z0-9-]{10,40}$/.test(orderNumber) || !/^[A-Z0-9.-]{6,24}$/.test(code)) { skipped += 1; continue; }
+    const codeHash = sha256(code);
+    const exists = await cloudflareQuery('SELECT id FROM redemption_codes WHERE code_hash = ? LIMIT 1', [codeHash]);
+    if (!exists[0]) { skipped += 1; continue; }
+    const assigned = await cloudflareQuery(
+      'SELECT order_hash, code_hash FROM pickup_orders WHERE order_hash = ? OR code_hash = ? LIMIT 1',
+      [sha256(orderNumber), codeHash]
+    );
+    if (assigned[0]) { skipped += 1; continue; }
+    await cloudflareQuery(`
+      INSERT INTO pickup_orders (order_hash, code_hash, code_cipher, created_at, claimed_at)
+      VALUES (?, ?, ?, ?, NULL)
+    `, [sha256(orderNumber), codeHash, encryptCode(secret, code), now]);
+    imported += 1;
+  }
+  return { imported, skipped };
+}
+
+async function pickupOrder(secret, orderNumber) {
+  await ensurePickupTable();
+  const orderHash = sha256(orderNumber);
+  const rows = await cloudflareQuery('SELECT code_cipher, claimed_at FROM pickup_orders WHERE order_hash = ? LIMIT 1', [orderHash]);
+  if (!rows[0]) return null;
+  const claimedAt = rows[0].claimed_at || new Date().toISOString();
+  if (!rows[0].claimed_at) await cloudflareQuery('UPDATE pickup_orders SET claimed_at = ? WHERE order_hash = ?', [claimedAt, orderHash]);
+  return { code: decryptCode(secret, rows[0].code_cipher), claimedAt };
+}
+
 exports.main_handler = async (event) => {
   const headers = event.headers || {};
   const origin = headers.origin || headers.Origin || '';
   const method = String(event.httpMethod || event.requestContext?.httpMethod || '').toUpperCase();
   const rawPath = event.path || event.requestContext?.path || '/';
-  const path = rawPath.endsWith('/verify') ? '/verify' : rawPath.endsWith('/redeem') ? '/redeem' : rawPath;
+  const path = rawPath.endsWith('/pickup/import') ? '/pickup/import' : rawPath.endsWith('/pickup') ? '/pickup' : rawPath.endsWith('/verify') ? '/verify' : rawPath.endsWith('/redeem') ? '/redeem' : rawPath;
 
   if (origin !== ALLOWED_ORIGIN) return response(403, { ok: false, error: 'forbidden' });
   if (method === 'OPTIONS') return response(204, '');
@@ -133,11 +214,27 @@ exports.main_handler = async (event) => {
       return rows[0] ? response(200, { ok: true, unlimited: rows[0].is_unlimited === 1 }) : response(401, { ok: false, error: 'invalid_session' });
     }
 
-    if (path !== '/redeem') return response(404, { ok: false, error: 'not_found' });
     let rawBody = event.body || '';
     if (event.isBase64Encoded) rawBody = Buffer.from(rawBody, 'base64').toString('utf8');
     let body;
     try { body = JSON.parse(rawBody); } catch { return response(400, { ok: false, error: 'invalid_request' }); }
+
+    if (path === '/pickup') {
+      const orderNumber = normalizeOrderNumber(body?.orderNumber);
+      if (!/^[A-Z0-9-]{10,40}$/.test(orderNumber)) return response(400, { ok: false, error: 'invalid_order_number' });
+      const result = await pickupOrder(process.env.SESSION_SECRET, orderNumber);
+      return result ? response(200, { ok: true, code: result.code, claimedAt: result.claimedAt }) : response(404, { ok: false, error: 'order_not_found' });
+    }
+
+    if (path === '/pickup/import') {
+      const adminCode = String(body?.adminCode || '').trim();
+      if (!await isAdminCode(adminCode)) return response(403, { ok: false, error: 'forbidden' });
+      const orders = Array.isArray(body?.orders) ? body.orders.slice(0, 100) : [];
+      const result = await importPickupOrders(process.env.SESSION_SECRET, orders);
+      return response(200, { ok: true, ...result });
+    }
+
+    if (path !== '/redeem') return response(404, { ok: false, error: 'not_found' });
     const code = String(body?.code || '').trim().toUpperCase();
     if (!/^[A-Z0-9.-]{6,24}$/.test(code)) return response(400, { ok: false, error: 'invalid_code' });
     const row = await redeem(code);
