@@ -88,13 +88,17 @@ export default {
     const code = String(body?.code || '').trim().toUpperCase();
     if (!/^[A-Z0-9.-]{6,24}$/.test(code)) return json({ ok: false, error: 'invalid_code' }, 400, origin, env);
     const now = new Date().toISOString();
+    const firstUseExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
     const codeHash = await sha256(code);
     const row = await env.DB.prepare(`
       UPDATE redemption_codes
-      SET used_count = CASE WHEN is_unlimited = 1 THEN used_count ELSE used_count + 1 END, last_used_at = ?
-      WHERE code_hash = ? AND (is_unlimited = 1 OR used_count < max_uses) AND (is_unlimited = 1 OR expires_at > ?)
-      RETURNING id, max_uses, used_count, expires_at, is_unlimited
-    `).bind(now, codeHash, now).first();
+      SET used_count = CASE WHEN is_unlimited = 1 THEN used_count ELSE used_count + 1 END,
+          first_used_at = CASE WHEN is_unlimited = 1 THEN first_used_at ELSE COALESCE(first_used_at, ?) END,
+          expires_at = CASE WHEN is_unlimited = 1 THEN expires_at WHEN first_used_at IS NULL THEN ? ELSE expires_at END,
+          last_used_at = ?
+      WHERE code_hash = ? AND (is_unlimited = 1 OR used_count < max_uses) AND (is_unlimited = 1 OR first_used_at IS NULL OR expires_at > ?)
+      RETURNING id, max_uses, used_count, first_used_at, expires_at, is_unlimited
+    `).bind(now, firstUseExpiry, now, codeHash, now).first();
     if (!row) return json({ ok: false, error: 'invalid_or_unavailable' }, 401, origin, env);
     const token = await issueToken(env.SESSION_SECRET, row.id);
     return json({ ok: true, token, unlimited: row.is_unlimited === 1, remaining: row.is_unlimited === 1 ? null : row.max_uses - row.used_count, expiresAt: row.is_unlimited === 1 ? null : row.expires_at }, 200, origin, env);

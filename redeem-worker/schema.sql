@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS redemption_codes (
   used_count INTEGER NOT NULL DEFAULT 0 CHECK (used_count >= 0),
   is_unlimited INTEGER NOT NULL DEFAULT 0 CHECK (is_unlimited IN (0, 1)),
   created_at TEXT NOT NULL,
+  first_used_at TEXT,
   expires_at TEXT NOT NULL,
   last_used_at TEXT
 );
