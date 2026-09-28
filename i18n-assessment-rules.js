@@ -1,0 +1,37 @@
+window.EASY_VISA_RULE_LOCALES={
+  "zh-TW":{
+    longStayReason:["為什麼本次計畫停留超過90天？",{tourismPlan:"有詳細的長期旅遊路線、住宿和預算",businessProject:"有明確的公司派遣、商務項目或培訓週期",familyVisit:"有明確的長期探親事項及邀請和住宿",medicalCourse:"有醫療機構確認的長期診療或康復週期",otherDocumented:"其他可核實的臨時訪問安排",extended:"只是希望延長停留，細節較少",productiveWork:"計畫在美國長期工作或領取美國來源工資",unclear:"目前無法說明具體原因"}],
+    longStayPurposeFit:["長期停留安排與赴美目的是否一致？",{clear:"內容、時間和目的完全一致",partial:"基本合理，部分安排待確認",conflict:"可能超出B1/B2訪客活動範圍",unsure:"尚未核對"}],
+    longStayEvidence:["能否提供相符的證明和返程安排？",{clear:"理由、證明、資金和返程安排完整一致",partial:"已有部分證明，仍待補充",weak:"主要為口頭說明，證明不足",none:"沒有證明或明確返程計畫"}],
+    sensitiveTravelFrequency:["相關旅行的頻率和最長停留時間是？",{singleShort:"一次短期旅行，不超過30天",multipleShort:"多次短期旅行，每次不超過30天",long:"有一次超過30天",frequentLong:"多次前往或累計長期停留",unsure:"不確定"}],
+    sensitiveTravelPurpose:["相關旅行的主要性質是什麼？",{tourismFamily:"普通旅遊、探親或私人事務",publicBusiness:"可核實的公開商務、學習、媒體或人道活動",governmentSensitive:"涉及政府、軍警、敏感科研、能源通信或受制裁實體",unclear:"目的難以說明或記錄不完整",private:"不願在此填寫"}]
+  },
+  en:{
+    longStayReason:["Why do you plan to stay for more than 90 days?",{tourismPlan:"A detailed long-term itinerary, lodging and budget",businessProject:"A defined company assignment, business project or training period",familyVisit:"A defined extended family visit with invitation and lodging",medicalCourse:"A long treatment or recovery period confirmed by a provider",otherDocumented:"Another verifiable temporary-visit arrangement",extended:"Simply to stay longer; details are limited",productiveWork:"To work long-term or receive U.S.-source wages",unclear:"No specific reason yet"}],
+    longStayPurposeFit:["Does the long stay match the stated trip purpose?",{clear:"Activities, dates and purpose fully match",partial:"Generally reasonable; some details are pending",conflict:"Activities may exceed the scope of B1/B2 visitor status",unsure:"Not reviewed"}],
+    longStayEvidence:["Can you document the long stay and return plan?",{clear:"Reason, evidence, funds and return plan are complete and consistent",partial:"Some evidence is available; gaps remain",weak:"Mostly verbal explanation with limited evidence",none:"No supporting evidence or clear return plan"}],
+    sensitiveTravelFrequency:["How frequent were these trips and what was the longest stay?",{singleShort:"One short trip of 30 days or less",multipleShort:"Several short trips, each 30 days or less",long:"At least one stay exceeded 30 days",frequentLong:"Repeated visits or substantial cumulative stays",unsure:"Not sure"}],
+    sensitiveTravelPurpose:["What was the main nature of these trips?",{tourismFamily:"Ordinary tourism, family visit or private matter",publicBusiness:"Verifiable public business, study, media or humanitarian activity",governmentSensitive:"Government, military/police, sensitive research, energy/telecom or sanctioned entity",unclear:"Purpose is difficult to explain or records are incomplete",private:"Prefer not to answer"}]
+  },
+  fr:{
+    longStayReason:["Pourquoi prévoyez-vous de rester plus de 90 jours ?",{tourismPlan:"Itinéraire, hébergement et budget détaillés",businessProject:"Mission, projet commercial ou formation définis",familyVisit:"Visite familiale prolongée avec invitation et logement",medicalCourse:"Traitement ou convalescence confirmé par un établissement",otherDocumented:"Autre visite temporaire vérifiable",extended:"Simple souhait de prolonger, avec peu de détails",productiveWork:"Travailler à long terme ou percevoir un salaire américain",unclear:"Aucune raison précise"}],
+    longStayPurposeFit:["Le long séjour correspond-il au motif déclaré ?",{clear:"Activités, dates et motif concordent",partial:"Globalement cohérent, détails à confirmer",conflict:"Activités potentiellement hors du cadre B1/B2",unsure:"Non vérifié"}],
+    longStayEvidence:["Pouvez-vous justifier le long séjour et le retour ?",{clear:"Motif, preuves, fonds et retour sont complets",partial:"Preuves partielles à compléter",weak:"Explication surtout orale, preuves limitées",none:"Aucune preuve ni retour clair"}],
+    sensitiveTravelFrequency:["Fréquence et durée maximale de ces voyages ?",{singleShort:"Un voyage de 30 jours maximum",multipleShort:"Plusieurs voyages de 30 jours maximum",long:"Au moins un séjour de plus de 30 jours",frequentLong:"Voyages répétés ou séjours cumulés longs",unsure:"Incertain"}],
+    sensitiveTravelPurpose:["Nature principale de ces voyages ?",{tourismFamily:"Tourisme, visite familiale ou affaire privée",publicBusiness:"Activité publique vérifiable, études, médias ou humanitaire",governmentSensitive:"Gouvernement, armée/police, recherche sensible, énergie/télécom ou entité sanctionnée",unclear:"Motif difficile à expliquer ou dossier incomplet",private:"Préfère ne pas répondre"}]
+  },
+  de:{
+    longStayReason:["Warum planen Sie mehr als 90 Tage Aufenthalt?",{tourismPlan:"Detaillierte Langzeitroute, Unterkunft und Budget",businessProject:"Klare Firmenentsendung, Geschäftsprojekt oder Schulung",familyVisit:"Längerer Familienbesuch mit Einladung und Unterkunft",medicalCourse:"Von einer Klinik bestätigte Behandlung oder Erholung",otherDocumented:"Andere nachweisbare vorübergehende Besuchsregelung",extended:"Nur längerer Aufenthalt; wenige Details",productiveWork:"Langfristige Arbeit oder US-Einkommen",unclear:"Noch kein konkreter Grund"}],
+    longStayPurposeFit:["Passt der lange Aufenthalt zum Reisezweck?",{clear:"Aktivitäten, Zeitraum und Zweck stimmen überein",partial:"Grundsätzlich plausibel, Details offen",conflict:"Möglicherweise außerhalb des B1/B2-Rahmens",unsure:"Nicht geprüft"}],
+    longStayEvidence:["Können Aufenthalt und Rückkehr belegt werden?",{clear:"Grund, Nachweise, Mittel und Rückkehrplan vollständig",partial:"Teilweise belegt, Ergänzungen nötig",weak:"Vorwiegend mündlich, wenig Nachweise",none:"Keine Nachweise oder klare Rückkehr"}],
+    sensitiveTravelFrequency:["Häufigkeit und längster Aufenthalt?",{singleShort:"Eine Reise bis 30 Tage",multipleShort:"Mehrere Reisen, jeweils bis 30 Tage",long:"Mindestens ein Aufenthalt über 30 Tage",frequentLong:"Wiederholte oder insgesamt lange Aufenthalte",unsure:"Nicht sicher"}],
+    sensitiveTravelPurpose:["Hauptzweck dieser Reisen?",{tourismFamily:"Tourismus, Familienbesuch oder Privates",publicBusiness:"Nachweisbare öffentliche Geschäfts-, Studien-, Medien- oder Hilfstätigkeit",governmentSensitive:"Regierung, Militär/Polizei, sensible Forschung, Energie/Telekom oder sanktionierte Stelle",unclear:"Zweck schwer erklärbar oder Unterlagen unvollständig",private:"Keine Angabe"}]
+  },
+  ja:{
+    longStayReason:["90日を超えて滞在する理由は何ですか？",{tourismPlan:"詳細な長期旅行ルート、宿泊、予算がある",businessProject:"明確な会社派遣、商務案件、研修期間がある",familyVisit:"招待・宿泊を伴う明確な長期親族訪問",medicalCourse:"医療機関が確認した長期治療・回復期間",otherDocumented:"その他確認可能な一時訪問予定",extended:"単に長く滞在したいが詳細は少ない",productiveWork:"米国で長期就労または米国源泉給与を得る",unclear:"具体的理由は未定"}],
+    longStayPurposeFit:["長期滞在は申告した渡航目的と一致しますか？",{clear:"活動・期間・目的が完全に一致",partial:"概ね合理的だが一部未確定",conflict:"B1/B2訪問活動の範囲を超える可能性",unsure:"未確認"}],
+    longStayEvidence:["長期滞在と帰国予定を証明できますか？",{clear:"理由・証明・資金・帰国予定が完全で整合",partial:"一部証明あり、補足が必要",weak:"口頭説明が中心で証明が少ない",none:"証明または明確な帰国予定なし"}],
+    sensitiveTravelFrequency:["渡航頻度と最長滞在期間は？",{singleShort:"30日以内の短期渡航1回",multipleShort:"各30日以内の複数回渡航",long:"30日超の滞在が1回以上",frequentLong:"頻繁な渡航または累計長期滞在",unsure:"不明"}],
+    sensitiveTravelPurpose:["主な渡航目的は？",{tourismFamily:"通常の観光、親族訪問、私用",publicBusiness:"確認可能な公開業務、学習、報道、人道活動",governmentSensitive:"政府、軍・警察、機微研究、エネルギー・通信、制裁対象組織",unclear:"目的の説明が難しい、または記録不十分",private:"回答しない"}]
+  }
+};
